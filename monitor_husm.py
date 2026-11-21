@@ -82,11 +82,18 @@ def checar_metsul():
 
 if __name__ == "__main__":
     todos = []
-    for fn in (checar_open_meteo, checar_inmet, checar_metsul):
-        try:
-            todos.extend(fn())
-        except Exception as e:
-            print(f"Erro em {fn.__name__}: {e}")
+    if os.environ.get("SIMULAR_ALERTA") == "true":
+        todos = [
+            "[SIMULAÇÃO DE TESTE] Chuva/Temporal: 35.0 mm/h (WMO 99)",
+            "[SIMULAÇÃO DE TESTE] Risco de Granizo (CAPE 2200 J/kg)",
+            "[SIMULAÇÃO DE TESTE] Rajadas A7 (Alerta >80 km/h): 84 km/h",
+        ]
+    else:
+        for fn in (checar_open_meteo, checar_inmet, checar_metsul):
+            try:
+                todos.extend(fn())
+            except Exception as e:
+                print(f"Erro em {fn.__name__}: {e}")
 
     if todos:
         msg = "ALERTA CLIMA HUSM / SANTA MARIA RS:\n\n- " + "\n- ".join(todos)
