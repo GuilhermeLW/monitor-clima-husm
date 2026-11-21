@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "*/15 * * * *"
   workflow_dispatch:
+    inputs:
+      simular_alerta:
+        description: "Simular alerta no Telegram (teste)"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   checar:
@@ -17,4 +23,5 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SIMULAR_ALERTA: ${{ inputs.simular_alerta }}
         run: python monitor_husm.py
