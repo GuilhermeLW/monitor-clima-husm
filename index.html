@@ -91,7 +91,7 @@
         <span id="historyCountBadge" class="px-1.5 py-0.2 rounded-full text-[11px] bg-slate-800 text-slate-300">0</span>
       </button>
       <button type="button" data-tab="background" class="tab-btn px-3.5 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap cursor-pointer">
-        Alertas 24h (SMS &amp; Script)
+        Alertas 24h (SMS)
       </button>
     </nav>
   </header>
@@ -623,48 +623,30 @@
       </div>
     </section>
 
-    <!-- TAB 4: 24/7 BACKGROUND ALERTS (SMS & PYTHON SCRIPT) -->
+    <!-- TAB 4: 24/7 BACKGROUND ALERTS (SMS) -->
     <section id="tab-background" class="tab-panel hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Defesa Civil RS Official -->
-        <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 space-y-4">
-          <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <i data-lucide="smartphone" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h2 class="text-sm font-bold text-white">Alertas Oficiais por SMS (Grátis)</h2>
-              <p class="text-xs text-slate-400">Defesa Civil do Rio Grande do Sul</p>
-            </div>
+      <div class="max-w-2xl rounded-2xl border border-slate-800 bg-slate-900/70 p-6 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+            <i data-lucide="smartphone" class="w-5 h-5"></i>
           </div>
-          <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside leading-relaxed">
-            <li>Abra o aplicativo de <strong>SMS</strong> no seu celular.</li>
-            <li>Envie uma mensagem para o número <strong class="text-amber-300">40199</strong>.</li>
-            <li>No texto, digite apenas o <strong>CEP</strong> do seu endereço em Santa Maria (ex: <code class="bg-slate-800 px-1.5 py-0.5 rounded">97010000</code>).</li>
-            <li>Você passará a receber avisos gratuitos de temporais, granizo, vento e cheias direto da Defesa Civil RS.</li>
-          </ol>
-          <div class="pt-2 border-t border-slate-800 text-xs text-slate-400 space-y-1.5">
-            <p>Emergências: <strong class="text-slate-200">190</strong> (Brigada Militar) / <strong class="text-slate-200">193</strong> (Bombeiros)</p>
-            <a href="https://defesacivil.rs.gov.br/como-receber-os" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-sky-400 hover:text-sky-300 font-medium">
-              <span>Guia oficial Defesa Civil RS</span>
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            </a>
+          <div>
+            <h2 class="text-base font-bold text-white">Alertas Oficiais por SMS (Grátis)</h2>
+            <p class="text-xs text-slate-400">Defesa Civil do Rio Grande do Sul — funciona mesmo sem internet</p>
           </div>
         </div>
-
-        <!-- Python 24/7 Script Generator -->
-        <div class="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-6 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 class="text-base font-bold text-white">Script Python 24h (Telegram / Webhook)</h2>
-              <p class="text-xs text-slate-400">Como o painel web só monitora com a aba aberta, rode este script em um PC, Raspberry Pi, Termux ou GitHub Actions usando seus limiares atuais.</p>
-            </div>
-            <button id="btnCopyPython" type="button" class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white transition cursor-pointer">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span>Copiar Script</span>
-            </button>
-          </div>
-          <pre id="pythonCodeBlock" class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-emerald-300 font-mono overflow-x-auto leading-relaxed max-h-96"></pre>
+        <ol class="text-sm text-slate-300 space-y-2.5 list-decimal list-inside leading-relaxed">
+          <li>Abra o aplicativo de <strong>SMS</strong> no seu celular.</li>
+          <li>Envie uma mensagem para o número <strong class="text-amber-300">40199</strong>.</li>
+          <li>No texto, digite apenas o <strong>CEP</strong> do seu endereço em Santa Maria (ex.: <code class="bg-slate-800 px-1.5 py-0.5 rounded">97105900</code> para o HUSM / Camobi ou <code class="bg-slate-800 px-1.5 py-0.5 rounded">97010000</code> para o Centro).</li>
+          <li>Você passará a receber avisos gratuitos de temporais, granizo, vento forte e cheias direto da Defesa Civil RS.</li>
+        </ol>
+        <div class="pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-400">
+          <p>Emergências: <strong class="text-slate-200">190</strong> (Brigada Militar) • <strong class="text-slate-200">193</strong> (Bombeiros) • <strong class="text-slate-200">199</strong> (Defesa Civil)</p>
+          <a href="https://defesacivil.rs.gov.br/como-receber-os" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-sky-400 hover:text-sky-300 font-medium">
+            <span>Guia oficial Defesa Civil RS</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </a>
         </div>
       </div>
     </section>
@@ -1217,9 +1199,6 @@
         // Render Charts
         renderCharts(hr, curIdx, th);
 
-        // Update Python Script
-        renderPythonScript();
-
         // Trigger active alert (Sound + Notification + History)
         if (triggerAlertCheck && evalNow.reasons.length > 0) {
           const alertKey = `${evalNow.level}:${evalNow.reasons.join('|')}:${state.isSimulated ? state.simType : 'live'}`;
@@ -1434,120 +1413,6 @@
         `).join('');
       }
 
-      function renderPythonScript() {
-        const th = state.thresholds;
-        const code = `import json
-import os
-import urllib.request
-from datetime import datetime
-
-# Monitor Climático 24h - Santa Maria, RS / HUSM (Risco Iminente + Janelas 72h + INMET)
-LAT, LON = -29.6839, -53.8069
-IBGE_SANTA_MARIA = "4316907"
-
-LIMIAR_CHUVA = ${th.rain}       # mm/h
-LIMIAR_CAPE = ${th.cape}      # J/kg (risco de granizo)
-LIMIAR_VENTO = ${th.wind}       # km/h (rajadas)
-LIMIAR_TEMP = ${th.temp}        # °C
-
-TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
-CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
-
-def enviar_telegram(texto):
-    print(texto)
-    if not TOKEN or not CHAT_ID:
-        return
-    req = urllib.request.Request(
-        f"https://api.telegram.org/bot{TOKEN}/sendMessage",
-        data=json.dumps({"chat_id": CHAT_ID, "text": texto}).encode(),
-        headers={"Content-Type": "application/json"},
-    )
-    urllib.request.urlopen(req, timeout=15)
-
-def avaliar_ponto(temp, sens, chuva, code, rajada, cape):
-    motivos = []
-    trovoada = code in (95, 96, 97, 99)
-    granizo_cod = code in (96, 99)
-    granizo_cape = cape >= LIMIAR_CAPE and (chuva > 0.5 or trovoada or rajada >= 45)
-    if trovoada or chuva >= LIMIAR_CHUVA:
-        motivos.append(f"Temporal/Chuva ({chuva:.1f} mm/h, WMO {code})")
-    if granizo_cod or granizo_cape:
-        motivos.append(f"Risco de Granizo (CAPE {round(cape)} J/kg)")
-    if rajada >= LIMIAR_VENTO:
-        motivos.append(f"Rajadas ({round(rajada)} km/h)")
-    if temp >= LIMIAR_TEMP or sens >= LIMIAR_TEMP:
-        motivos.append(f"Calor extremo ({temp:.1f}°C / sens. {sens:.1f}°C)")
-    severo = granizo_cod or granizo_cape or trovoada or rajada >= LIMIAR_VENTO + 15 or chuva >= LIMIAR_CHUVA * 1.5
-    return motivos, ("SEVERO" if severo else "ATENÇÃO")
-
-def checar_open_meteo():
-    url = (
-        f"https://api.open-meteo.com/v1/forecast?latitude={LAT}&longitude={LON}"
-        "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_gusts_10m"
-        "&hourly=temperature_2m,apparent_temperature,precipitation,weather_code,wind_gusts_10m,cape"
-        "&timezone=America%2FSao_Paulo&forecast_days=3"
-    )
-    with urllib.request.urlopen(url, timeout=15) as r:
-        dados = json.loads(r.read().decode())
-
-    cur = dados["current"]
-    hr = dados["hourly"]
-    agora = datetime.strptime(cur["time"][:16], "%Y-%m-%dT%H:%M")
-    cur_idx = min(range(len(hr["time"])), key=lambda i: abs((datetime.strptime(hr["time"][i][:16], "%Y-%m-%dT%H:%M") - agora).total_seconds()))
-
-    iminentes, _ = avaliar_ponto(
-        cur["temperature_2m"], cur["apparent_temperature"],
-        cur["precipitation"], cur["weather_code"],
-        cur["wind_gusts_10m"], hr["cape"][cur_idx] or 0
-    )
-
-    janelas = []
-    for i in range(cur_idx + 1, min(len(hr["time"]), cur_idx + 72)):
-        m, niv = avaliar_ponto(
-            hr["temperature_2m"][i], hr["apparent_temperature"][i],
-            hr["precipitation"][i], hr["weather_code"][i],
-            hr["wind_gusts_10m"][i], hr["cape"][i] or 0
-        )
-        if m:
-            dt = datetime.strptime(hr["time"][i][:16], "%Y-%m-%dT%H:%M").strftime("%d/%m %Hh")
-            janelas.append(f"{dt} [{niv}]: " + " • ".join(m))
-    return iminentes, janelas
-
-def checar_inmet():
-    url = "https://radarmeteorologico.com.br/api/v1/alertas?uf=RS"
-    with urllib.request.urlopen(url, timeout=15) as r:
-        dados = json.loads(r.read().decode())
-    return [
-        f"INMET ({a.get('severidade', 'Aviso')}): {a.get('evento', 'Alerta oficial')}"
-        for a in dados.get("alertas", [])
-        if IBGE_SANTA_MARIA in [str(m) for m in a.get("municipios_afetados", [])]
-    ]
-
-if __name__ == "__main__":
-    iminentes, janelas, inmet = [], [], []
-    try:
-        iminentes, janelas = checar_open_meteo()
-    except Exception as e:
-        print("Erro Open-Meteo:", e)
-    try:
-        inmet = checar_inmet()
-    except Exception as e:
-        print("Erro INMET:", e)
-
-    partes = []
-    if iminentes or inmet:
-        partes.append("🚨 RISCO IMINENTE (AGORA):\n- " + "\n- ".join(iminentes + inmet))
-    if janelas:
-        resumo = "\n- ".join(janelas[:8])
-        extra = f"\n... (+{len(janelas) - 8} horas com risco nas 72h)" if len(janelas) > 8 else ""
-        partes.append(f"🕒 JANELAS DE RISCO PREVISTAS (72h - {len(janelas)}h no total):\n- {resumo}{extra}")
-    if partes:
-        enviar_telegram("ALERTA CLIMA HUSM / SANTA MARIA RS\n\n" + "\n\n".join(partes))
-    else:
-        print("Santa Maria RS: Normalidade nas próximas 72h.")`;
-        document.getElementById('pythonCodeBlock').textContent = code;
-      }
-
       // Countdown Timer
       function startTimer() {
         if (state.timerId) clearInterval(state.timerId);
@@ -1686,263 +1551,12 @@ if __name__ == "__main__":
         renderHistory();
       });
 
-      document.getElementById('btnCopyPython').addEventListener('click', async () => {
-        const text = document.getElementById('pythonCodeBlock').textContent;
-        try {
-          await navigator.clipboard.writeText(text);
-          showToast('Copiado!', 'Script Python copiado para a área de transferência.', 'info');
-        } catch (e) {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          ta.remove();
-          showToast('Copiado!', 'Script Python copiado para a área de transferência.', 'info');
-        }
-      });
-
-      // Live Radar Map (Leaflet + ArcGIS Dark Gray + RainViewer)
-      let radarState = {
-        map: null,
-        host: '',
-        frames: [],
-        layers: {},
-        currentIdx: -1,
-        animTimer: null,
-        opacity: 0.75
-      };
-
-      function initRadarMap() {
-        if (!radarState.map && typeof L !== 'undefined') {
-          const map = L.map('radarMap', {
-            center: [SANTA_MARIA.lat, SANTA_MARIA.lon],
-            zoom: 7,
-            minZoom: 4,
-            maxZoom: 11
-          });
-
-          L.tileLayer('https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri',
-            maxZoom: 16
-          }).addTo(map);
-
-          L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 16,
-            opacity: 0.75
-          }).addTo(map);
-
-          L.circleMarker([SANTA_MARIA.lat, SANTA_MARIA.lon], {
-            radius: 7,
-            color: '#38bdf8',
-            fillColor: '#0284c7',
-            fillOpacity: 0.9,
-            weight: 2
-          }).bindPopup('<strong>Santa Maria, RS</strong><br>Ponto monitorado').addTo(map);
-
-          L.circle([SANTA_MARIA.lat, SANTA_MARIA.lon], {
-            radius: 50000,
-            color: '#38bdf8',
-            weight: 1,
-            dashArray: '4 4',
-            fillOpacity: 0.03
-          }).addTo(map);
-
-          radarState.map = map;
-          loadRainViewerFrames();
-        }
-        if (radarState.map) {
-          setTimeout(() => radarState.map.invalidateSize(), 120);
-        }
-      }
-
-      async function loadRainViewerFrames() {
-        const timeBadge = document.getElementById('radarTimeBadge');
-        try {
-          const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          radarState.host = data.host || 'https://tilecache.rainviewer.com';
-          radarState.frames = (data.radar && Array.isArray(data.radar.past)) ? data.radar.past : [];
-          if (radarState.frames.length > 0) {
-            showRadarFrame(radarState.frames.length - 1);
-          } else if (timeBadge) {
-            timeBadge.textContent = 'Sem quadros';
-          }
-        } catch (err) {
-          if (timeBadge) timeBadge.textContent = 'Radar indisponível';
-        }
-      }
-
-      function showRadarFrame(idx) {
-        if (!radarState.map || radarState.frames.length === 0) return;
-        const safeIdx = ((idx % radarState.frames.length) + radarState.frames.length) % radarState.frames.length;
-
-        Object.values(radarState.layers).forEach(layer => {
-          if (radarState.map.hasLayer(layer)) radarState.map.removeLayer(layer);
-        });
-
-        const frame = radarState.frames[safeIdx];
-        if (!radarState.layers[frame.path]) {
-          radarState.layers[frame.path] = L.tileLayer(`${radarState.host}${frame.path}/256/{z}/{x}/{y}/2/1_1.png`, {
-            tileSize: 256,
-            maxNativeZoom: 7,
-            maxZoom: 11,
-            opacity: radarState.opacity,
-            zIndex: 10
-          });
-        } else {
-          radarState.layers[frame.path].setOpacity(radarState.opacity);
-        }
-        radarState.layers[frame.path].addTo(radarState.map);
-        radarState.currentIdx = safeIdx;
-
-        const d = new Date(frame.time * 1000);
-        document.getElementById('radarTimeBadge').textContent = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      }
-
-      document.getElementById('btnRadarPrev').addEventListener('click', () => {
-        stopRadarAnim();
-        showRadarFrame(radarState.currentIdx - 1);
-      });
-
-      document.getElementById('btnRadarNext').addEventListener('click', () => {
-        stopRadarAnim();
-        showRadarFrame(radarState.currentIdx + 1);
-      });
-
-      function stopRadarAnim() {
-        if (radarState.animTimer) {
-          clearInterval(radarState.animTimer);
-          radarState.animTimer = null;
-        }
-        document.getElementById('btnRadarPlayLabel').textContent = 'Animar (2h)';
-      }
-
-      document.getElementById('btnRadarPlay').addEventListener('click', () => {
-        if (radarState.animTimer) {
-          stopRadarAnim();
-          return;
-        }
-        if (radarState.frames.length === 0) return;
-        document.getElementById('btnRadarPlayLabel').textContent = 'Pausar';
-        radarState.animTimer = setInterval(() => {
-          showRadarFrame(radarState.currentIdx + 1);
-        }, 650);
-      });
-
-      document.getElementById('radarOpacity').addEventListener('input', (e) => {
-        const pct = Number(e.target.value);
-        radarState.opacity = pct / 100;
-        document.getElementById('radarOpacityVal').textContent = `${pct}%`;
-        if (radarState.currentIdx >= 0 && radarState.frames[radarState.currentIdx]) {
-          const lyr = radarState.layers[radarState.frames[radarState.currentIdx].path];
-          if (lyr) lyr.setOpacity(radarState.opacity);
-        }
-      });
-
-      // HUSM PCMCE Stage Evaluator (Quadro 11)
-      function evaluateHusmStages(cur, next24Hours) {
-        const navBadge = document.getElementById('husmNavBadge');
-        const stageCard = document.getElementById('husmStageCard');
-        const stageBadge = document.getElementById('husmStageBadge');
-        const stageHeadline = document.getElementById('husmStageHeadline');
-        const stageSubtext = document.getElementById('husmStageSubtext');
-        if (!navBadge || !stageCard) return;
-
-        // Check current + actual next 24h peak for HUSM thresholds
-        const next24 = Array.isArray(next24Hours) ? next24Hours : [];
-        const maxGust = Math.max(cur.wind_gusts_10m || 0, ...next24.map(x => x.wind_gusts_10m || 0));
-        const maxRain = Math.max(cur.precipitation || 0, ...next24.map(x => x.precipitation || 0));
-        const hasHailCode = [96, 99].includes(cur.weather_code) || next24.some(x => [96, 99].includes(x.weather_code));
-        const maxTemp = Math.max(cur.temperature_2m || 0, cur.apparent_temperature || 0, ...next24.map(x => x.temperature_2m || 0));
-
-        // A7 Wind/Hail
-        let a7 = 'Normalidade';
-        if (hasHailCode) a7 = 'Emergência';
-        else if (maxGust > 80) a7 = 'Alerta';
-        else if (maxGust >= 60) a7 = 'Mobilização';
-
-        // A4 Rain
-        let a4 = 'Normalidade';
-        if (maxRain >= 60) a4 = 'Alerta';
-        else if (maxRain >= 30) a4 = 'Mobilização';
-
-        // A3 Heat (proxy when >= 34°C or >= 38°C)
-        let a3 = 'Normalidade';
-        if (maxTemp >= 38) a3 = 'Alerta';
-        else if (maxTemp >= 34) a3 = 'Mobilização';
-
-        // Check INMET RS alerts for Santa Maria
-        const smInmet = (state.inmetData && state.inmetData.santaMaria) ? state.inmetData.santaMaria : [];
-        smInmet.forEach(a => {
-          const sev = String(a.severidade || '').toLowerCase();
-          const ev = String(a.evento || '').toLowerCase();
-          if (ev.includes('calor')) {
-            if (sev.includes('grande perigo')) a3 = 'Emergência';
-            else if (sev.includes('perigo') && a3 === 'Normalidade') a3 = 'Alerta';
-            else if (a3 === 'Normalidade') a3 = 'Mobilização';
-          }
-          if (ev.includes('chuva') || ev.includes('tempestade') || ev.includes('vendaval')) {
-            if (sev.includes('grande perigo') && a4 !== 'Emergência') a4 = 'Alerta';
-            else if (sev.includes('perigo') && a4 === 'Normalidade') a4 = 'Mobilização';
-          }
-        });
-
-        setHusmBadge('husmBadgeA7', a7);
-        setHusmBadge('husmBadgeA4', a4);
-        setHusmBadge('husmBadgeA3', a3);
-
-        const order = { 'Normalidade': 0, 'Mobilização': 1, 'Alerta': 2, 'Emergência': 3, 'Crise': 4 };
-        const stages = [a7, a4, a3];
-        const top = stages.reduce((acc, s) => order[s] > order[acc] ? s : acc, 'Normalidade');
-
-        const styleMap = {
-          'Normalidade': { cls: 'bg-emerald-500/20 text-emerald-300', card: 'border-slate-800 bg-slate-900/70', head: 'Sem gatilhos do PCMCE acionados', sub: 'Manutenção preventiva e monitoramento de rotina (Quadro 13).' },
-          'Mobilização': { cls: 'bg-amber-500/20 text-amber-300', card: 'border-amber-500/40 bg-amber-950/25', head: 'Estágio sugerido: Mobilização (risco identificado)', sub: 'Verificar autonomias (água, diesel, gases), desobstruir calhas/ralos e emitir alerta preventivo no grupo.' },
-          'Alerta': { cls: 'bg-orange-500/25 text-orange-200', card: 'border-orange-500/50 bg-orange-950/30', head: 'Estágio sugerido: Alerta (evento provável ou iniciado)', sub: 'Comunicar Superintendência e sede HU Brasil; elevar insumos em subsolos (> 1 m) e preparar surge capacity.' },
-          'Emergência': { cls: 'bg-rose-500/25 text-rose-200', card: 'border-rose-500/60 bg-rose-950/40', head: 'Estágio sugerido: Emergência (impacto severo / granizo)', sub: 'Ativar COE; acionar SIF, STEC e Bombeiros Civis; PAE parte diretamente do Nível 2.' }
-        };
-
-        const st = styleMap[top] || styleMap['Normalidade'];
-        navBadge.textContent = top;
-        navBadge.className = `px-1.5 py-0.2 rounded-full text-[10px] font-bold ${st.cls}`;
-        stageBadge.textContent = `Estágio: ${top}`;
-        stageBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${st.cls}`;
-        stageCard.className = `rounded-2xl border ${st.card} p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4`;
-        stageHeadline.textContent = st.head;
-        stageSubtext.textContent = st.sub;
-      }
-
-      function setHusmBadge(id, stage) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const map = {
-          'Normalidade': 'bg-slate-800 text-slate-300',
-          'Mobilização': 'bg-amber-500/20 text-amber-300',
-          'Alerta': 'bg-orange-500/25 text-orange-200',
-          'Emergência': 'bg-rose-500/25 text-rose-200'
-        };
-        el.className = `px-2 py-0.5 rounded-full text-[11px] font-semibold ${map[stage] || map['Normalidade']}`;
-        el.textContent = stage;
-      }
-
-      document.getElementById('btnApplyHusmThresholds').addEventListener('click', () => {
-        state.thresholds.rain = 30;
-        state.thresholds.wind = 60;
-        state.thresholds.cape = 1500;
-        state.thresholds.temp = 34;
-        saveSettings();
-        syncConfigUI();
-        renderAll(false);
-        showToast('Limiares HUSM aplicados', 'Chuva 30 mm/h, Rajadas 60 km/h, CAPE 1500 J/kg e Calor 34 °C.', 'info');
-      });
-
       // Init
       syncConfigUI();
-      renderPythonScript();
       startTimer();
       fetchLiveWeather();
       lucide.createIcons();
     })();
   </script>
+</body>
+</html>
