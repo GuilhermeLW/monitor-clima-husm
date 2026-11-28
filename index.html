@@ -692,6 +692,7 @@
       let state = {
         thresholds: loadSettings(),
         weatherData: null,
+        realWeatherData: null,
         inmetData: null,
         isSimulated: false,
         simType: null,
@@ -927,6 +928,7 @@
           const res = await fetch(url);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
+          state.realWeatherData = JSON.parse(JSON.stringify(data));
           state.weatherData = data;
           state.isSimulated = false;
           state.simType = null;
@@ -963,7 +965,7 @@
           gust.push(24);
           cape.push(300);
         }
-        state.weatherData = {
+        const sample = {
           current: {
             time: times[0],
             temperature_2m: temp[0],
@@ -986,13 +988,18 @@
             cape: cape
           }
         };
+        if (!state.realWeatherData) state.realWeatherData = JSON.parse(JSON.stringify(sample));
+        state.weatherData = sample;
         updateSourceBadge(false, 'Offline (Amostra)');
         renderAll(false);
       }
 
       function applySimulation(type) {
-        if (!state.weatherData) loadFallbackSample();
-        const cloned = JSON.parse(JSON.stringify(state.weatherData));
+        if (!state.realWeatherData && !state.weatherData) loadFallbackSample();
+        const baseData = state.realWeatherData || state.weatherData;
+        const cloned = JSON.parse(JSON.stringify(baseData));
+        const curIdx = getCurrentHourlyIndex(cloned.hourly.time);
+        const nextIdx = Math.min(curIdx + 1, cloned.hourly.time.length - 1);
         state.isSimulated = true;
         state.simType = type;
 
@@ -1003,22 +1010,22 @@
           cloned.current.wind_gusts_10m = 75;
           cloned.current.temperature_2m = 21.5;
           cloned.current.apparent_temperature = 21.5;
-          cloned.hourly.cape[0] = 2400;
-          cloned.hourly.cape[1] = 2100;
-          cloned.hourly.precipitation[0] = 28.4;
-          cloned.hourly.precipitation[1] = 19.0;
-          cloned.hourly.weather_code[0] = 99;
-          cloned.hourly.weather_code[1] = 96;
-          cloned.hourly.wind_gusts_10m[0] = 75;
-          cloned.hourly.wind_gusts_10m[1] = 68;
+          cloned.hourly.cape[curIdx] = 2400;
+          cloned.hourly.cape[nextIdx] = 2100;
+          cloned.hourly.precipitation[curIdx] = 28.4;
+          cloned.hourly.precipitation[nextIdx] = 19.0;
+          cloned.hourly.weather_code[curIdx] = 99;
+          cloned.hourly.weather_code[nextIdx] = 96;
+          cloned.hourly.wind_gusts_10m[curIdx] = 75;
+          cloned.hourly.wind_gusts_10m[nextIdx] = 68;
           showBanner('sim', 'Modo Simulação Ativo: Temporal com Granizo', 'Exibindo dados simulados para testar os alertas de temporal, granizo e vento em Santa Maria.', true);
         } else if (type === 'wind') {
           cloned.current.precipitation = 4.2;
           cloned.current.weather_code = 80;
           cloned.current.wind_speed_10m = 55;
           cloned.current.wind_gusts_10m = 84;
-          cloned.hourly.wind_gusts_10m[0] = 84;
-          cloned.hourly.wind_gusts_10m[1] = 72;
+          cloned.hourly.wind_gusts_10m[curIdx] = 84;
+          cloned.hourly.wind_gusts_10m[nextIdx] = 72;
           showBanner('sim', 'Modo Simulação Ativo: Vendaval', 'Exibindo rajadas simuladas de 84 km/h para testar alertas de vento forte.', true);
         } else if (type === 'heat') {
           cloned.current.temperature_2m = 38.5;
@@ -1026,9 +1033,10 @@
           cloned.current.relative_humidity_2m = 32;
           cloned.current.precipitation = 0;
           cloned.current.weather_code = 0;
-          cloned.hourly.temperature_2m[0] = 38.5;
-          cloned.hourly.temperature_2m[1] = 37.8;
-          cloned.hourly.apparent_temperature[0] = 42.0;
+          cloned.hourly.temperature_2m[curIdx] = 38.5;
+          cloned.hourly.temperature_2m[nextIdx] = 37.8;
+          cloned.hourly.apparent_temperature[curIdx] = 42.0;
+          cloned.hourly.apparent_temperature[nextIdx] = 41.0;
           showBanner('sim', 'Modo Simulação Ativo: Onda de Calor', 'Exibindo temperatura simulada de 38.5 °C (sensação 42 °C) em Santa Maria.', true);
         }
 
@@ -1188,8 +1196,20 @@
         document.getElementById('nextHeatRisk').textContent = firstHeat ? `Previsto ${formatShortTime(firstHeat)}` : 'Sem pico (48h)';
         styleCard('cardHeat', 'badgeHeat', evalNow.heatActive, 'CALOR EXTREMO', 'Normal');
 
+        // Build actual next 24h slice for HUSM PCMCE evaluation
+        const next24Hours = [];
+        for (let i = curIdx; i < Math.min(hr.time.length, curIdx + 24); i++) {
+          next24Hours.push({
+            weather_code: hr.weather_code[i],
+            precipitation: hr.precipitation[i] || 0,
+            wind_gusts_10m: hr.wind_gusts_10m[i] || 0,
+            temperature_2m: hr.temperature_2m[i] || 0,
+            apparent_temperature: hr.apparent_temperature[i] || 0
+          });
+        }
+
         // Evaluate HUSM PCMCE Stages
-        evaluateHusmStages(currentPoint, upcoming);
+        evaluateHusmStages(currentPoint, next24Hours);
 
         // Render Upcoming Risk Windows
         renderRiskWindows(upcoming);
@@ -1416,87 +1436,115 @@
 
       function renderPythonScript() {
         const th = state.thresholds;
-        const code = `import urllib.request, json, xml.etree.ElementTree as ET
+        const code = `import json
+import os
+import urllib.request
+from datetime import datetime
 
-# Monitor Climático 24h - Santa Maria, RS (Open-Meteo + INMET + MetSul)
+# Monitor Climático 24h - Santa Maria, RS / HUSM (Risco Iminente + Janelas 72h + INMET)
 LAT, LON = -29.6839, -53.8069
 IBGE_SANTA_MARIA = "4316907"
+
 LIMIAR_CHUVA = ${th.rain}       # mm/h
-LIMIAR_CAPE = ${th.cape}      # J/kg (risco convectivo/granizo)
+LIMIAR_CAPE = ${th.cape}      # J/kg (risco de granizo)
 LIMIAR_VENTO = ${th.wind}       # km/h (rajadas)
 LIMIAR_TEMP = ${th.temp}        # °C
 
-TELEGRAM_BOT_TOKEN = "SEU_TOKEN_AQUI"
-TELEGRAM_CHAT_ID = "SEU_CHAT_ID_AQUI"
+TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 
 def enviar_telegram(texto):
     print(texto)
-    if TELEGRAM_BOT_TOKEN == "SEU_TOKEN_AQUI":
+    if not TOKEN or not CHAT_ID:
         return
     req = urllib.request.Request(
-        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-        data=json.dumps({"chat_id": TELEGRAM_CHAT_ID, "text": texto}).encode(),
-        headers={"Content-Type": "application/json"}
+        f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+        data=json.dumps({"chat_id": CHAT_ID, "text": texto}).encode(),
+        headers={"Content-Type": "application/json"},
     )
-    urllib.request.urlopen(req, timeout=10)
+    urllib.request.urlopen(req, timeout=15)
+
+def avaliar_ponto(temp, sens, chuva, code, rajada, cape):
+    motivos = []
+    trovoada = code in (95, 96, 97, 99)
+    granizo_cod = code in (96, 99)
+    granizo_cape = cape >= LIMIAR_CAPE and (chuva > 0.5 or trovoada or rajada >= 45)
+    if trovoada or chuva >= LIMIAR_CHUVA:
+        motivos.append(f"Temporal/Chuva ({chuva:.1f} mm/h, WMO {code})")
+    if granizo_cod or granizo_cape:
+        motivos.append(f"Risco de Granizo (CAPE {round(cape)} J/kg)")
+    if rajada >= LIMIAR_VENTO:
+        motivos.append(f"Rajadas ({round(rajada)} km/h)")
+    if temp >= LIMIAR_TEMP or sens >= LIMIAR_TEMP:
+        motivos.append(f"Calor extremo ({temp:.1f}°C / sens. {sens:.1f}°C)")
+    severo = granizo_cod or granizo_cape or trovoada or rajada >= LIMIAR_VENTO + 15 or chuva >= LIMIAR_CHUVA * 1.5
+    return motivos, ("SEVERO" if severo else "ATENÇÃO")
 
 def checar_open_meteo():
     url = (
         f"https://api.open-meteo.com/v1/forecast?latitude={LAT}&longitude={LON}"
         "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_gusts_10m"
-        "&hourly=cape&timezone=America%2FSao_Paulo&forecast_days=1"
+        "&hourly=temperature_2m,apparent_temperature,precipitation,weather_code,wind_gusts_10m,cape"
+        "&timezone=America%2FSao_Paulo&forecast_days=3"
     )
     with urllib.request.urlopen(url, timeout=15) as r:
         dados = json.loads(r.read().decode())
+
     cur = dados["current"]
-    cape = dados["hourly"]["cape"][0] or 0
-    alertas = []
-    if cur["weather_code"] in (95, 96, 97, 99) or cur["precipitation"] >= LIMIAR_CHUVA:
-        alertas.append(f"Open-Meteo: Temporal/Chuva ({cur['precipitation']} mm/h, WMO {cur['weather_code']})")
-    if cur["weather_code"] in (96, 99) or (cape >= LIMIAR_CAPE and cur["precipitation"] > 0.5):
-        alertas.append(f"Open-Meteo: Risco de Granizo (CAPE {cape} J/kg)")
-    if cur["wind_gusts_10m"] >= LIMIAR_VENTO:
-        alertas.append(f"Open-Meteo: Rajadas de vento ({cur['wind_gusts_10m']} km/h)")
-    if cur["temperature_2m"] >= LIMIAR_TEMP or cur["apparent_temperature"] >= LIMIAR_TEMP:
-        alertas.append(f"Open-Meteo: Calor extremo ({cur['temperature_2m']}°C / sensação {cur['apparent_temperature']}°C)")
-    return alertas
+    hr = dados["hourly"]
+    agora = datetime.strptime(cur["time"][:16], "%Y-%m-%dT%H:%M")
+    cur_idx = min(range(len(hr["time"])), key=lambda i: abs((datetime.strptime(hr["time"][i][:16], "%Y-%m-%dT%H:%M") - agora).total_seconds()))
+
+    iminentes, _ = avaliar_ponto(
+        cur["temperature_2m"], cur["apparent_temperature"],
+        cur["precipitation"], cur["weather_code"],
+        cur["wind_gusts_10m"], hr["cape"][cur_idx] or 0
+    )
+
+    janelas = []
+    for i in range(cur_idx + 1, min(len(hr["time"]), cur_idx + 72)):
+        m, niv = avaliar_ponto(
+            hr["temperature_2m"][i], hr["apparent_temperature"][i],
+            hr["precipitation"][i], hr["weather_code"][i],
+            hr["wind_gusts_10m"][i], hr["cape"][i] or 0
+        )
+        if m:
+            dt = datetime.strptime(hr["time"][i][:16], "%Y-%m-%dT%H:%M").strftime("%d/%m %Hh")
+            janelas.append(f"{dt} [{niv}]: " + " • ".join(m))
+    return iminentes, janelas
 
 def checar_inmet():
     url = "https://radarmeteorologico.com.br/api/v1/alertas?uf=RS"
     with urllib.request.urlopen(url, timeout=15) as r:
         dados = json.loads(r.read().decode())
-    alertas = []
-    for a in dados.get("alertas", []):
-        muns = [str(m) for m in a.get("municipios_afetados", [])]
-        if IBGE_SANTA_MARIA in muns:
-            alertas.append(f"INMET ({a.get('severidade', 'Aviso')}): {a.get('evento', 'Alerta oficial')}")
-    return alertas
-
-def checar_metsul():
-    url = "https://metsul.com/categoria/alerta/feed/"
-    req = urllib.request.Request(url, headers={"User-Agent": "MonitorClimaSM/1.0"})
-    with urllib.request.urlopen(req, timeout=15) as r:
-        root = ET.fromstring(r.read())
-    alertas = []
-    for item in root.findall("./channel/item")[:5]:
-        titulo = (item.findtext("title") or "")
-        desc = (item.findtext("description") or "")
-        texto = f"{titulo} {desc}".lower()
-        if any(k in texto for k in ("santa maria", "região central", "rio grande do sul")):
-            alertas.append(f"MetSul: {titulo} ({item.findtext('link') or ''})")
-    return alertas
+    return [
+        f"INMET ({a.get('severidade', 'Aviso')}): {a.get('evento', 'Alerta oficial')}"
+        for a in dados.get("alertas", [])
+        if IBGE_SANTA_MARIA in [str(m) for m in a.get("municipios_afetados", [])]
+    ]
 
 if __name__ == "__main__":
-    todos = []
-    for fn in (checar_open_meteo, checar_inmet, checar_metsul):
-        try:
-            todos.extend(fn())
-        except Exception as e:
-            print(f"Aviso ao consultar {fn.__name__}: {e}")
-    if todos:
-        enviar_telegram("ALERTA CLIMA SANTA MARIA RS:\n- " + "\n- ".join(todos))
+    iminentes, janelas, inmet = [], [], []
+    try:
+        iminentes, janelas = checar_open_meteo()
+    except Exception as e:
+        print("Erro Open-Meteo:", e)
+    try:
+        inmet = checar_inmet()
+    except Exception as e:
+        print("Erro INMET:", e)
+
+    partes = []
+    if iminentes or inmet:
+        partes.append("🚨 RISCO IMINENTE (AGORA):\n- " + "\n- ".join(iminentes + inmet))
+    if janelas:
+        resumo = "\n- ".join(janelas[:8])
+        extra = f"\n... (+{len(janelas) - 8} horas com risco nas 72h)" if len(janelas) > 8 else ""
+        partes.append(f"🕒 JANELAS DE RISCO PREVISTAS (72h - {len(janelas)}h no total):\n- {resumo}{extra}")
+    if partes:
+        enviar_telegram("ALERTA CLIMA HUSM / SANTA MARIA RS\n\n" + "\n\n".join(partes))
     else:
-        print("Santa Maria RS: Sem alertas nas 3 fontes.")`;
+        print("Santa Maria RS: Normalidade nas próximas 72h.")`;
         document.getElementById('pythonCodeBlock').textContent = code;
       }
 
@@ -1794,7 +1842,7 @@ if __name__ == "__main__":
       });
 
       // HUSM PCMCE Stage Evaluator (Quadro 11)
-      function evaluateHusmStages(cur, upcoming) {
+      function evaluateHusmStages(cur, next24Hours) {
         const navBadge = document.getElementById('husmNavBadge');
         const stageCard = document.getElementById('husmStageCard');
         const stageBadge = document.getElementById('husmStageBadge');
@@ -1802,8 +1850,8 @@ if __name__ == "__main__":
         const stageSubtext = document.getElementById('husmStageSubtext');
         if (!navBadge || !stageCard) return;
 
-        // Check current + next 24h peak for HUSM thresholds
-        const next24 = upcoming.slice(0, 24);
+        // Check current + actual next 24h peak for HUSM thresholds
+        const next24 = Array.isArray(next24Hours) ? next24Hours : [];
         const maxGust = Math.max(cur.wind_gusts_10m || 0, ...next24.map(x => x.wind_gusts_10m || 0));
         const maxRain = Math.max(cur.precipitation || 0, ...next24.map(x => x.precipitation || 0));
         const hasHailCode = [96, 99].includes(cur.weather_code) || next24.some(x => [96, 99].includes(x.weather_code));
@@ -1898,5 +1946,3 @@ if __name__ == "__main__":
       lucide.createIcons();
     })();
   </script>
-</body>
-</html>
